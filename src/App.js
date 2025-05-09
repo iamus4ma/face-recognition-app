@@ -7,6 +7,7 @@ function App() {
   const [modelsLoaded, setModelsLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
   const [referencePhoto, setReferencePhoto] = useState(null);
+  console.log(referencePhoto, "referencePhoto");
   const [referenceDescriptor, setReferenceDescriptor] = useState(null);
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [match, setMatch] = useState(null);
@@ -62,24 +63,24 @@ function App() {
       return;
     }
 
-    navigator.mediaDevices.getUserMedia({ 
-      video: { 
-        width: 640, 
+    navigator.mediaDevices.getUserMedia({
+      video: {
+        width: 640,
         height: 480,
         facingMode: 'user' // Front camera
-      } 
-    })
-    .then(stream => {
-      streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
       }
     })
-    .catch(err => {
-      console.error('Camera error:', err);
-      alert(`Cannot access camera: ${err.message}`);
-      setIsCameraOn(false);
-    });
+      .then(stream => {
+        streamRef.current = stream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      })
+      .catch(err => {
+        console.error('Camera error:', err);
+        alert(`Cannot access camera: ${err.message}`);
+        setIsCameraOn(false);
+      });
   };
   const stopVideo = () => {
     if (streamRef.current) {
@@ -104,16 +105,17 @@ function App() {
       const image = await faceapi.bufferToImage(file);
       setReferencePhoto(image);
 
-      // Get face descriptor from reference image
+      // Get face descriptor from uploaded image
       const detection = await faceapi
         .detectSingleFace(image, new faceapi.TinyFaceDetectorOptions())
         .withFaceLandmarks()
         .withFaceDescriptor();
 
+
       if (detection) {
         setReferenceDescriptor(detection.descriptor);
       } else {
-        alert('No face detected in the reference image');
+        alert('No face detected in the uploaded image');
       }
     } catch (error) {
       console.error('Error processing image:', error);
