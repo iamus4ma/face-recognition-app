@@ -97,21 +97,27 @@ function App() {
       alert('Models are still loading. Please wait.');
       return;
     }
-
+  
     const file = e.target.files[0];
     if (!file) return;
-
+  
     try {
       const image = await faceapi.bufferToImage(file);
       setReferencePhoto(image);
-
-      // Get face descriptor from uploaded image
+  
+      // Create a canvas and draw the uploaded image
+      const canvas = document.createElement('canvas');
+      canvas.width = image.width;
+      canvas.height = image.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(image, 0, 0);
+  
+      // Detect face descriptor from the canvas image
       const detection = await faceapi
-        .detectSingleFace(image, new faceapi.TinyFaceDetectorOptions())
+        .detectSingleFace(canvas, new faceapi.TinyFaceDetectorOptions())
         .withFaceLandmarks()
         .withFaceDescriptor();
-
-
+  
       if (detection) {
         setReferenceDescriptor(detection.descriptor);
       } else {
@@ -122,6 +128,7 @@ function App() {
       alert('Error processing image. Please try another photo.');
     }
   };
+  
 
   const capturePhoto = async () => {
     if (!videoRef.current || !modelsLoaded) {
